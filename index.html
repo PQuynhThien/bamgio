@@ -11,12 +11,14 @@
             --number-bg: rgba(255, 255, 255, 0.15);
             --accent-color: #38bdf8;
             --transition-speed: 0.5s;
+            --toggle-bg: rgba(255, 255, 255, 0.2);
         }
 
         [data-theme="dark"] {
             --bg-color: #0f172a;
             --number-bg: rgba(30, 41, 59, 0.8);
             --accent-color: #6366f1;
+            --toggle-bg: rgba(30, 41, 59, 0.5);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,87 +26,60 @@
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
             background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: var(--text-color);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; color: var(--text-color);
             transition: background-color var(--transition-speed);
             overflow: hidden;
         }
 
-        .theme-toggle {
-            position: absolute; top: 15px; right: 15px;
-            padding: 6px 12px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1); color: white;
-            cursor: pointer; font-size: 0.75rem; font-weight: 500; 
-            transition: 0.3s; backdrop-filter: blur(5px);
+        /* THIẾT KẾ NÚT CHUYỂN MODE GIỐNG TRONG ẢNH */
+        .theme-switcher {
+            position: absolute; top: 20px; right: 20px;
+            display: flex; background: var(--toggle-bg);
+            padding: 4px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer; z-index: 1001;
+            gap: 4px;
+        }
+
+        .switch-icon {
+            padding: 8px 12px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s; opacity: 0.5;
+        }
+
+        .switch-icon svg { width: 18px; height: 18px; fill: currentColor; }
+
+        /* Hiệu ứng Active cho Sáng/Tối */
+        [data-theme="purple"] #sun-icon, 
+        [data-theme="dark"] #moon-icon {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .main-container { text-align: center; width: 100%; max-width: 700px; padding: 20px; }
+        .title { font-size: 1rem; letter-spacing: 2px; margin-bottom: 2rem; text-transform: uppercase; font-weight: 700; min-height: 1.5rem; }
 
-        .title {
-            font-size: 1rem; letter-spacing: 4px; font-weight: 300;
-            margin-bottom: 2rem; text-transform: uppercase; opacity: 0.8;
-        }
-
-        .timer-wrapper {
-            display: flex; justify-content: center; align-items: center;
-            gap: 15px; margin-bottom: 2.5rem;
-        }
+        .timer-wrapper { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 2.5rem; }
 
         .number-slot {
             background: var(--number-bg);
-            font-size: clamp(2.5rem, 12vw, 5.5rem);
+            font-size: clamp(2rem, 10vw, 5.5rem);
             font-weight: 800; padding: 20px;
-            border-radius: 16px; min-width: 120px;
-            position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            backdrop-filter: blur(12px);
+            border-radius: 16px; min-width: 130px;
             border: 1px solid rgba(255,255,255,0.2);
+            outline: none; transition: all 0.3s;
         }
 
-        .number-slot::after {
-            content: ""; position: absolute; left: 0; top: 50%;
-            width: 100%; height: 1px; background: rgba(0,0,0,0.08);
+        .number-slot.editable {
+            cursor: text; border: 2px solid var(--accent-color);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
         }
 
         .label { margin-top: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.6; font-weight: 600; }
         .separator { font-size: 2.5rem; padding-bottom: 30px; opacity: 0.5; }
-
-        .input-box-container {
-            margin-bottom: 2.5rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .input-box-container input {
-            background: rgba(0, 0, 0, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 12px 20px;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.1rem;
-            width: 220px;
-            text-align: center;
-            outline: none;
-            transition: all 0.3s;
-            appearance: textfield;
-        }
-
-        .input-box-container input::-webkit-outer-spin-button,
-        .input-box-container input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .input-box-container label {
-            position: absolute; top: -10px; left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-color); padding: 0 8px;
-            font-size: 0.65rem; font-weight: 800; color: var(--accent-color);
-            transition: 0.5s; letter-spacing: 1px;
-        }
 
         .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         
@@ -118,123 +93,162 @@
         .btn-stop { background: #f43f5e; color: white; }
         .btn-reset { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* MODAL THÔNG BÁO */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content {
+            visibility: hidden; opacity: 0;
+            position: absolute; bottom: 100%; left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background-color: #1e293b; min-width: 220px;
+            border-radius: 12px; border: 1px solid var(--accent-color);
+            transition: 0.3s; z-index: 1000;
+        }
+
+        .dropdown:hover .dropdown-content { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(-10px); }
+
+        .dropdown-content button {
+            color: white; padding: 12px 16px; display: block;
+            width: 100%; border: none; background: transparent;
+            cursor: pointer; text-align: left; font-size: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .dropdown-content button:hover { background: var(--accent-color); }
+
         #alarm-modal {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center; align-items: center; z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-        .modal-content {
-            background: #1e293b; padding: 40px; border-radius: 24px;
-            text-align: center; border: 2px solid var(--accent-color);
-            box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
-        }
-        .modal-content h2 { font-size: 2rem; margin-bottom: 20px; color: #f43f5e; }
-        .btn-ok { 
-            background: var(--accent-color); color: white; 
-            padding: 15px 40px; border: none; border-radius: 12px;
-            font-weight: 800; cursor: pointer; font-size: 1.2rem;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); justify-content: center; align-items: center; 
+            z-index: 2000; backdrop-filter: blur(10px);
         }
     </style>
 </head>
 <body data-theme="purple">
 
-<button class="theme-toggle" onclick="toggleTheme()">🌓 MODE</button>
+<div class="theme-switcher" onclick="toggleTheme()">
+    <div class="switch-icon" id="sun-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+    </div>
+    <div class="switch-icon" id="moon-icon">
+        <svg viewBox="0 0 24 24"><path d="M12.12 2.01c-1.72 1.53-2.78 3.73-2.78 6.18 0 4.6 3.73 8.32 8.32 8.32 1.27 0 2.48-.29 3.56-.8 1.1-.53 2.41.29 2.12 1.47-1.39 5.61-6.42 9.82-12.42 9.82-7.13 0-12.92-5.79-12.92-12.92 0-6.1 4.21-11.12 9.82-12.51 1.18-.29 2.01 1.02 1.47 2.13z"/></svg>
+    </div>
+</div>
 
 <div class="main-container">
-    <div class="title" id="mode-text">Sẵn sàng</div>
+    <div class="title" id="mode-text">SẴN SÀNG</div>
+    
     <div class="timer-wrapper">
-        <div class="time-box"><div class="number-slot" id="hh">00</div><div class="label">HOUR</div></div>
+        <div class="time-box"><div class="number-slot" id="hh" onfocus="clearIfZero(this)" onblur="validateEntry(this)">00</div><div class="label" id="l-h">HOUR</div></div>
         <div class="separator">:</div>
-        <div class="time-box"><div class="number-slot" id="mm">00</div><div class="label">MIN</div></div>
-        <div class="separator">:</div>
-        <div class="time-box"><div class="number-slot" id="ss">00</div><div class="label">SEC</div></div>
+        <div class="time-box"><div class="number-slot" id="mm" onfocus="clearIfZero(this)" onblur="validateEntry(this)">00</div><div class="label" id="l-m">MIN</div></div>
+        <div class="separator" id="sep-2">:</div>
+        <div class="time-box" id="sec-box"><div class="number-slot" id="ss" onfocus="clearIfZero(this)" onblur="validateEntry(this)">00</div><div class="label" id="l-s">SEC</div></div>
     </div>
-    <div class="input-box-container">
-        <label>PHÚT ĐẾM NGƯỢC</label>
-        <input type="number" id="input-mins" placeholder="Nhập số..." onkeydown="if(event.key==='Enter') initTimer('countdown')">
-    </div>
+
     <div class="btn-group">
-        <button class="action-btn btn-primary" onclick="initTimer('countdown')">Đếm ngược</button>
-        <button class="action-btn btn-primary" style="filter: hue-rotate(45deg);" onclick="initTimer('stopwatch')">Bấm giờ</button>
+        <div class="dropdown">
+            <button class="action-btn btn-primary">Chế độ ▼</button>
+            <div class="dropdown-content">
+                <button onclick="startClockMode()">🕒 Xem giờ hiện tại</button>
+                <button onclick="startTetCountdown()">🏮 Tết Nguyên Đán 2026</button>
+                <button onclick="enableManualEdit('countdown')">✍️ Đếm Ngược</button>
+                <button onclick="enableManualEdit('alarm')" style="color: #fbbf24;">⏰ ĐẶT BÁO THỨC</button>
+            </div>
+        </div>
+        <button class="action-btn btn-primary" id="main-action-btn" onclick="initTimer('stopwatch')">Bấm giờ</button>
         <button class="action-btn btn-stop" id="pause-btn" onclick="togglePause()">Tạm dừng</button>
         <button class="action-btn btn-reset" onclick="resetAll()">Reset</button>
     </div>
 </div>
 
 <div id="alarm-modal">
-    <div class="modal-content">
-        <h2>⏰ HẾT GIỜ RỒI!</h2>
-        <button class="btn-ok" onclick="stopAlarm()">TẮT CHUÔNG (OK)</button>
+    <div class="modal-content" style="background: #1e293b; padding: 40px; border-radius: 24px; text-align: center;">
+        <h2 id="alarm-title" style="color: #f43f5e; margin-bottom: 20px;">⏰ HẾT GIỜ RỒI!</h2>
+        <button class="action-btn btn-primary" onclick="stopAlarm()">TẮT CHUÔNG</button>
     </div>
 </div>
 
 <script>
     let timerId, alarmInterval;
-    let isPaused = false;
+    let isPaused = false, isEditMode = false;
+    let currentEditType = 'countdown'; 
+    
     const elH = document.getElementById('hh'), elM = document.getElementById('mm'), elS = document.getElementById('ss');
     const modeText = document.getElementById('mode-text'), pauseBtn = document.getElementById('pause-btn');
-    const modal = document.getElementById('alarm-modal');
-
+    const mainBtn = document.getElementById('main-action-btn');
+    const secBox = document.getElementById('sec-box'), sep2 = document.getElementById('sep-2');
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    function playBeep() {
-        let startTime = audioCtx.currentTime;
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, startTime);
-        gainNode.gain.setValueAtTime(0, startTime);
-        gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
-        oscillator.start(startTime);
-        oscillator.stop(startTime + 0.4);
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('theme') || 'purple';
+        document.body.setAttribute('data-theme', savedTheme);
+        const type = localStorage.getItem('timerType');
+        if (type) {
+            isPaused = localStorage.getItem('isPaused') === 'true';
+            if (isPaused) pauseBtn.innerText = "Tiếp tục";
+            updateModeUI(type);
+            startLoop();
+        }
+    };
+
+    function updateModeUI(type) {
+        secBox.style.display = (type === 'alarm') ? 'none' : 'block';
+        sep2.style.display = (type === 'alarm') ? 'none' : 'block';
+        if (type === 'stopwatch') modeText.innerText = "ĐANG BẤM GIỜ";
+        else if (type === 'tet') modeText.innerText = "🧧 CHỜ TẾT 2026";
+        else if (type === 'clock') modeText.innerText = "🕒 GIỜ HIỆN TẠI";
+        else if (type === 'alarm') { /* Chạy động trong update() */ }
+        else modeText.innerText = "ĐANG ĐẾM NGƯỢC";
     }
 
-    function startAlarm() {
-        modal.style.display = 'flex';
-        playBeep();
-        // Cứ mỗi 0.8 giây kêu 1 lần cho đến khi tắt
-        alarmInterval = setInterval(playBeep, 800);
+    function clearIfZero(el) {
+        if (!isEditMode) return;
+        if (el.innerText === "00") el.innerText = "";
     }
 
-    function stopAlarm() {
-        clearInterval(alarmInterval);
-        modal.style.display = 'none';
+    function enableManualEdit(mode) {
         resetAll();
+        isEditMode = true; currentEditType = mode;
+        modeText.innerText = (mode === 'alarm') ? "NHẬP GIỜ BÁO THỨC (24H)" : "CHẾ ĐỘ CHỈNH SỬA";
+        mainBtn.innerText = (mode === 'alarm') ? "ĐẶT BÁO THỨC" : "BẮT ĐẦU ĐẾM";
+        mainBtn.onclick = () => initTimer(mode);
+        if(mode === 'alarm') { secBox.style.display = 'none'; sep2.style.display = 'none'; }
+        [elH, elM, elS].forEach(el => { el.contentEditable = "true"; el.classList.add('editable'); });
+        elH.focus();
     }
 
-    function toggleTheme() {
-        const body = document.body;
-        const newTheme = body.getAttribute('data-theme') === 'purple' ? 'dark' : 'purple';
-        body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('preferredTheme', newTheme);
+    function disableManualEdit() {
+        isEditMode = false;
+        mainBtn.innerText = "Bấm giờ"; mainBtn.onclick = () => initTimer('stopwatch');
+        [elH, elM, elS].forEach(el => { el.contentEditable = "false"; el.classList.remove('editable'); });
     }
 
-    if(localStorage.getItem('preferredTheme')) document.body.setAttribute('data-theme', localStorage.getItem('preferredTheme'));
-
-    window.onload = () => { if(localStorage.getItem('timerType')) startLoop(); };
+    function validateEntry(el) {
+        let val = el.innerText.replace(/[^0-9]/g, '');
+        if (!val) val = "00";
+        if (el.id === 'hh' && parseInt(val) > 23 && currentEditType === 'alarm') val = "23";
+        else if (el.id === 'hh' && parseInt(val) > 99) val = "99";
+        if (el.id !== 'hh' && parseInt(val) > 59) val = "59";
+        el.innerText = val.padStart(2, '0');
+    }
 
     function initTimer(type) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        localStorage.removeItem('endTime'); localStorage.removeItem('startTime');
-        const now = Date.now();
-        if (type === 'countdown') {
-            const mins = parseInt(document.getElementById('input-mins').value) || 0;
-            if (mins <= 0) return alert("Nhập số phút hợp lệ!");
-            localStorage.setItem('endTime', now + (mins * 60 * 1000));
-            modeText.innerText = "COUNTING DOWN";
-        } else {
-            localStorage.setItem('startTime', now);
-            modeText.innerText = "STOPWATCH RUNNING";
+        if (type === 'countdown' || type === 'manual') {
+            const h = parseInt(elH.innerText) || 0, m = parseInt(elM.innerText) || 0, s = parseInt(elS.innerText) || 0;
+            let durationMs = (h * 3600 + m * 60 + s) * 1000;
+            if (durationMs <= 0) return alert("Vui lòng nhập thời gian!");
+            localStorage.setItem('timerType', 'countdown'); localStorage.setItem('endTime', Date.now() + durationMs);
+        } else if (type === 'alarm') {
+            localStorage.setItem('timerType', 'alarm'); localStorage.setItem('alarmTime', elH.innerText + ":" + elM.innerText);
+        } else if (type === 'stopwatch') {
+            localStorage.setItem('timerType', 'stopwatch'); localStorage.setItem('startTime', Date.now());
         }
-        localStorage.setItem('timerType', type);
-        isPaused = false;
+        disableManualEdit(); updateModeUI(localStorage.getItem('timerType'));
+        isPaused = false; localStorage.setItem('isPaused', 'false');
         startLoop();
+    }
+
+    function startClockMode() {
+        resetAll(); localStorage.setItem('timerType', 'clock');
+        updateModeUI('clock'); startLoop();
     }
 
     function startLoop() {
@@ -243,57 +257,105 @@
     }
 
     function update() {
-        if (isPaused) return;
+        if (isPaused || isEditMode) return;
         const type = localStorage.getItem('timerType');
-        const now = Date.now();
-        let diff = 0;
+        if (!type) return;
 
-        if (type === 'countdown') {
-            const endTime = parseInt(localStorage.getItem('endTime'));
-            diff = Math.max(0, endTime - now);
-            if (diff <= 0) { 
-                clearInterval(timerId);
-                startAlarm();
+        const now = new Date();
+        let dH, dM, dS;
+
+        if (type === 'clock') {
+            const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            modeText.innerText = `🕒 ${days[now.getDay()]}, ${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
+            dH = now.getHours().toString().padStart(2, '0');
+            dM = now.getMinutes().toString().padStart(2, '0');
+            dS = now.getSeconds().toString().padStart(2, '0');
+        } else if (type === 'alarm') {
+            const aT = localStorage.getItem('alarmTime');
+            const [aH, aM] = aT.split(':').map(Number);
+            let alarmDate = new Date(); alarmDate.setHours(aH, aM, 0, 0);
+            if (alarmDate <= now) alarmDate.setDate(alarmDate.getDate() + 1);
+            const diff = alarmDate - now;
+            const tS = Math.floor(diff / 1000);
+            modeText.innerText = `🔔 REO SAU: ${Math.floor(tS/3600)}G ${Math.floor((tS%3600)/60)}P ${tS%60}S`;
+            dH = now.getHours().toString().padStart(2, '0');
+            dM = now.getMinutes().toString().padStart(2, '0');
+            dS = now.getSeconds().toString().padStart(2, '0');
+            if (now.getHours() === aH && now.getMinutes() === aM && now.getSeconds() === 0) { clearInterval(timerId); startAlarm("⏰ ĐẾN GIỜ BÁO THỨC!"); }
+        } else if (type === 'countdown' || type === 'tet') {
+            const end = parseInt(localStorage.getItem('endTime')) || 0;
+            let diff = Math.max(0, end - now.getTime());
+            if (diff <= 0 && type === 'countdown') { clearInterval(timerId); startAlarm("⏰ HẾT GIỜ RỒI!"); }
+            const tS = Math.floor(diff / 1000);
+            dH = Math.floor(tS / 3600).toString().padStart(2, '0');
+            dM = Math.floor((tS % 3600) / 60).toString().padStart(2, '0');
+            dS = (tS % 60).toString().padStart(2, '0');
+            if (type === 'tet') {
+                dH = Math.floor(tS / (3600 * 24)).toString().padStart(2, '0');
+                dM = Math.floor((tS % (3600 * 24)) / 3600).toString().padStart(2, '0');
+                dS = Math.floor((tS % 3600) / 60).toString().padStart(2, '0') + ":" + (tS % 60).toString().padStart(2, '0');
             }
         } else {
-            const startTime = parseInt(localStorage.getItem('startTime'));
-            diff = now - startTime;
+            const start = parseInt(localStorage.getItem('startTime')) || 0;
+            const diff = now.getTime() - start;
+            const tS = Math.floor(diff / 1000);
+            dH = Math.floor(tS / 3600).toString().padStart(2, '0');
+            dM = Math.floor((tS % 3600) / 60).toString().padStart(2, '0');
+            dS = (tS % 60).toString().padStart(2, '0');
         }
 
-        const totalSecs = Math.floor(diff / 1000);
-        const h = Math.floor(totalSecs / 3600).toString().padStart(2, '0');
-        const m = Math.floor((totalSecs % 3600) / 60).toString().padStart(2, '0');
-        const s = (totalSecs % 60).toString().padStart(2, '0');
-        elH.innerText = h; elM.innerText = m; elS.innerText = s;
-        document.title = `${h}:${m}:${s} - Timer`;
+        elH.innerText = dH; elM.innerText = dM; 
+        if(type !== 'alarm') elS.innerText = dS;
+        document.title = `${dH}:${dM}${type!=='alarm'?':'+dS:''} - Timer`;
     }
 
     function togglePause() {
-        isPaused = !isPaused;
-        if (isPaused) {
-            localStorage.setItem('pausedAt', Date.now());
-            pauseBtn.innerText = "Tiếp tục";
-        } else {
-            const pauseDuration = Date.now() - parseInt(localStorage.getItem('pausedAt') || Date.now());
-            if (localStorage.getItem('timerType') === 'countdown') {
-                localStorage.setItem('endTime', parseInt(localStorage.getItem('endTime')) + pauseDuration);
-            } else {
-                localStorage.setItem('startTime', parseInt(localStorage.getItem('startTime')) + pauseDuration);
-            }
+        const type = localStorage.getItem('timerType');
+        if (!type || type === 'alarm' || type === 'clock') return;
+        isPaused = !isPaused; localStorage.setItem('isPaused', isPaused);
+        if (isPaused) { localStorage.setItem('pausedAt', Date.now()); pauseBtn.innerText = "Tiếp tục"; }
+        else {
+            const gap = Date.now() - parseInt(localStorage.getItem('pausedAt'));
+            if (type === 'stopwatch') localStorage.setItem('startTime', (parseInt(localStorage.getItem('startTime')) + gap));
+            else localStorage.setItem('endTime', (parseInt(localStorage.getItem('endTime')) + gap));
             pauseBtn.innerText = "Tạm dừng";
         }
     }
 
     function resetAll() {
-        clearInterval(timerId);
-        clearInterval(alarmInterval);
-        localStorage.clear();
+        clearInterval(timerId); clearInterval(alarmInterval);
+        localStorage.removeItem('timerType'); localStorage.removeItem('startTime');
+        localStorage.removeItem('endTime'); localStorage.removeItem('isPaused'); localStorage.removeItem('alarmTime');
+        disableManualEdit(); secBox.style.display = 'block'; sep2.style.display = 'block';
         elH.innerText = elM.innerText = elS.innerText = "00";
-        modeText.innerText = "READY";
-        pauseBtn.innerText = "Tạm dừng";
-        modal.style.display = 'none';
-        isPaused = false;
+        document.title = "00:00:00 - Timer Pro";
+        modeText.innerText = "SẴN SÀNG"; pauseBtn.innerText = "Tạm dừng";
+        document.getElementById('alarm-modal').style.display = 'none'; isPaused = false;
     }
+
+    function startTetCountdown() {
+        resetAll(); const tetDate = new Date('February 17, 2026 00:00:00').getTime();
+        localStorage.setItem('timerType', 'tet'); localStorage.setItem('endTime', tetDate);
+        updateModeUI('tet'); startLoop();
+    }
+
+    function toggleTheme() {
+        const current = document.body.getAttribute('data-theme');
+        const nt = current === 'purple' ? 'dark' : 'purple';
+        document.body.setAttribute('data-theme', nt);
+        localStorage.setItem('theme', nt);
+    }
+
+    function startAlarm(txt) {
+        document.getElementById('alarm-title').innerText = txt;
+        document.getElementById('alarm-modal').style.display = 'flex';
+        alarmInterval = setInterval(() => {
+            let o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.2);
+        }, 800);
+    }
+
+    function stopAlarm() { clearInterval(alarmInterval); resetAll(); }
 </script>
 </body>
 </html>
