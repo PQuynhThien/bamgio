@@ -33,7 +33,6 @@
             overflow: hidden;
         }
 
-        /* Nút đổi màu nhỏ gọn hơn */
         .theme-toggle {
             position: absolute; top: 15px; right: 15px;
             padding: 6px 12px; border-radius: 8px;
@@ -42,7 +41,6 @@
             cursor: pointer; font-size: 0.75rem; font-weight: 500; 
             transition: 0.3s; backdrop-filter: blur(5px);
         }
-        .theme-toggle:hover { background: white; color: #333; }
 
         .main-container { text-align: center; width: 100%; max-width: 700px; padding: 20px; }
 
@@ -74,7 +72,6 @@
         .label { margin-top: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.6; font-weight: 600; }
         .separator { font-size: 2.5rem; padding-bottom: 30px; opacity: 0.5; }
 
-        /* Ô nhập số gọn gàng và không có mũi tên */
         .input-box-container {
             margin-bottom: 2.5rem;
             position: relative;
@@ -92,20 +89,13 @@
             text-align: center;
             outline: none;
             transition: all 0.3s;
-            appearance: textfield; /* Bỏ mũi tên Firefox */
+            appearance: textfield;
         }
 
-        /* Bỏ mũi tên Chrome, Safari, Edge */
         .input-box-container input::-webkit-outer-spin-button,
         .input-box-container input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
-        }
-
-        .input-box-container input:focus {
-            border-color: var(--accent-color);
-            background: rgba(0, 0, 0, 0.1);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
         }
 
         .input-box-container label {
@@ -121,14 +111,32 @@
         button.action-btn {
             padding: 12px 20px; border: none; border-radius: 10px;
             font-weight: 700; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;
+            text-transform: uppercase; font-size: 0.8rem;
         }
 
         .btn-primary { background: var(--accent-color); color: white; }
         .btn-stop { background: #f43f5e; color: white; }
         .btn-reset { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
 
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); opacity: 0.9; }
+        /* MODAL THÔNG BÁO */
+        #alarm-modal {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center; align-items: center; z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .modal-content {
+            background: #1e293b; padding: 40px; border-radius: 24px;
+            text-align: center; border: 2px solid var(--accent-color);
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
+        }
+        .modal-content h2 { font-size: 2rem; margin-bottom: 20px; color: #f43f5e; }
+        .btn-ok { 
+            background: var(--accent-color); color: white; 
+            padding: 15px 40px; border: none; border-radius: 12px;
+            font-weight: 800; cursor: pointer; font-size: 1.2rem;
+        }
     </style>
 </head>
 <body data-theme="purple">
@@ -137,29 +145,17 @@
 
 <div class="main-container">
     <div class="title" id="mode-text">Sẵn sàng</div>
-
     <div class="timer-wrapper">
-        <div class="time-box">
-            <div class="number-slot" id="hh">00</div>
-            <div class="label">HOUR</div>
-        </div>
+        <div class="time-box"><div class="number-slot" id="hh">00</div><div class="label">HOUR</div></div>
         <div class="separator">:</div>
-        <div class="time-box">
-            <div class="number-slot" id="mm">00</div>
-            <div class="label">MIN</div>
-        </div>
+        <div class="time-box"><div class="number-slot" id="mm">00</div><div class="label">MIN</div></div>
         <div class="separator">:</div>
-        <div class="time-box">
-            <div class="number-slot" id="ss">00</div>
-            <div class="label">SEC</div>
-        </div>
+        <div class="time-box"><div class="number-slot" id="ss">00</div><div class="label">SEC</div></div>
     </div>
-
     <div class="input-box-container">
         <label>PHÚT ĐẾM NGƯỢC</label>
-        <input type="number" id="input-mins" placeholder="Nhập số...">
+        <input type="number" id="input-mins" placeholder="Nhập số..." onkeydown="if(event.key==='Enter') initTimer('countdown')">
     </div>
-
     <div class="btn-group">
         <button class="action-btn btn-primary" onclick="initTimer('countdown')">Đếm ngược</button>
         <button class="action-btn btn-primary" style="filter: hue-rotate(45deg);" onclick="initTimer('stopwatch')">Bấm giờ</button>
@@ -168,11 +164,49 @@
     </div>
 </div>
 
+<div id="alarm-modal">
+    <div class="modal-content">
+        <h2>⏰ HẾT GIỜ RỒI!</h2>
+        <button class="btn-ok" onclick="stopAlarm()">TẮT CHUÔNG (OK)</button>
+    </div>
+</div>
+
 <script>
-    let timerId;
+    let timerId, alarmInterval;
     let isPaused = false;
     const elH = document.getElementById('hh'), elM = document.getElementById('mm'), elS = document.getElementById('ss');
     const modeText = document.getElementById('mode-text'), pauseBtn = document.getElementById('pause-btn');
+    const modal = document.getElementById('alarm-modal');
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playBeep() {
+        let startTime = audioCtx.currentTime;
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, startTime);
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.4);
+    }
+
+    function startAlarm() {
+        modal.style.display = 'flex';
+        playBeep();
+        // Cứ mỗi 0.8 giây kêu 1 lần cho đến khi tắt
+        alarmInterval = setInterval(playBeep, 800);
+    }
+
+    function stopAlarm() {
+        clearInterval(alarmInterval);
+        modal.style.display = 'none';
+        resetAll();
+    }
 
     function toggleTheme() {
         const body = document.body;
@@ -186,6 +220,7 @@
     window.onload = () => { if(localStorage.getItem('timerType')) startLoop(); };
 
     function initTimer(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         localStorage.removeItem('endTime'); localStorage.removeItem('startTime');
         const now = Date.now();
         if (type === 'countdown') {
@@ -216,7 +251,10 @@
         if (type === 'countdown') {
             const endTime = parseInt(localStorage.getItem('endTime'));
             diff = Math.max(0, endTime - now);
-            if (diff <= 0) { resetAll(); alert("Hết giờ!"); }
+            if (diff <= 0) { 
+                clearInterval(timerId);
+                startAlarm();
+            }
         } else {
             const startTime = parseInt(localStorage.getItem('startTime'));
             diff = now - startTime;
@@ -226,9 +264,8 @@
         const h = Math.floor(totalSecs / 3600).toString().padStart(2, '0');
         const m = Math.floor((totalSecs % 3600) / 60).toString().padStart(2, '0');
         const s = (totalSecs % 60).toString().padStart(2, '0');
-
         elH.innerText = h; elM.innerText = m; elS.innerText = s;
-        document.title = `${h}:${m}:${s} - ${type === 'countdown' ? 'Còn lại' : 'Bấm giờ'}`;
+        document.title = `${h}:${m}:${s} - Timer`;
     }
 
     function togglePause() {
@@ -237,7 +274,7 @@
             localStorage.setItem('pausedAt', Date.now());
             pauseBtn.innerText = "Tiếp tục";
         } else {
-            const pauseDuration = Date.now() - parseInt(localStorage.getItem('pausedAt'));
+            const pauseDuration = Date.now() - parseInt(localStorage.getItem('pausedAt') || Date.now());
             if (localStorage.getItem('timerType') === 'countdown') {
                 localStorage.setItem('endTime', parseInt(localStorage.getItem('endTime')) + pauseDuration);
             } else {
@@ -249,11 +286,12 @@
 
     function resetAll() {
         clearInterval(timerId);
+        clearInterval(alarmInterval);
         localStorage.clear();
         elH.innerText = elM.innerText = elS.innerText = "00";
         modeText.innerText = "READY";
         pauseBtn.innerText = "Tạm dừng";
-        document.title = "00:00:00 - Timer";
+        modal.style.display = 'none';
         isPaused = false;
     }
 </script>
