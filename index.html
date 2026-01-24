@@ -1,67 +1,261 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Game Online Đơn Giản</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>00:00:00 - Timer</title>
     <style>
-        canvas { border: 2px solid black; background: #f0f0f0; }
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        :root {
+            --bg-color: #c4b5fd;
+            --text-color: #ffffff;
+            --number-bg: rgba(255, 255, 255, 0.15);
+            --accent-color: #38bdf8;
+            --transition-speed: 0.5s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --number-bg: rgba(30, 41, 59, 0.8);
+            --accent-color: #6366f1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            transition: background-color var(--transition-speed);
+            overflow: hidden;
+        }
+
+        /* Nút đổi màu nhỏ gọn hơn */
+        .theme-toggle {
+            position: absolute; top: 15px; right: 15px;
+            padding: 6px 12px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1); color: white;
+            cursor: pointer; font-size: 0.75rem; font-weight: 500; 
+            transition: 0.3s; backdrop-filter: blur(5px);
+        }
+        .theme-toggle:hover { background: white; color: #333; }
+
+        .main-container { text-align: center; width: 100%; max-width: 700px; padding: 20px; }
+
+        .title {
+            font-size: 1rem; letter-spacing: 4px; font-weight: 300;
+            margin-bottom: 2rem; text-transform: uppercase; opacity: 0.8;
+        }
+
+        .timer-wrapper {
+            display: flex; justify-content: center; align-items: center;
+            gap: 15px; margin-bottom: 2.5rem;
+        }
+
+        .number-slot {
+            background: var(--number-bg);
+            font-size: clamp(2.5rem, 12vw, 5.5rem);
+            font-weight: 800; padding: 20px;
+            border-radius: 16px; min-width: 120px;
+            position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .number-slot::after {
+            content: ""; position: absolute; left: 0; top: 50%;
+            width: 100%; height: 1px; background: rgba(0,0,0,0.08);
+        }
+
+        .label { margin-top: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.6; font-weight: 600; }
+        .separator { font-size: 2.5rem; padding-bottom: 30px; opacity: 0.5; }
+
+        /* Ô nhập số gọn gàng và không có mũi tên */
+        .input-box-container {
+            margin-bottom: 2.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .input-box-container input {
+            background: rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            width: 220px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+            appearance: textfield; /* Bỏ mũi tên Firefox */
+        }
+
+        /* Bỏ mũi tên Chrome, Safari, Edge */
+        .input-box-container input::-webkit-outer-spin-button,
+        .input-box-container input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-box-container input:focus {
+            border-color: var(--accent-color);
+            background: rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .input-box-container label {
+            position: absolute; top: -10px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-color); padding: 0 8px;
+            font-size: 0.65rem; font-weight: 800; color: var(--accent-color);
+            transition: 0.5s; letter-spacing: 1px;
+        }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        
+        button.action-btn {
+            padding: 12px 20px; border: none; border-radius: 10px;
+            font-weight: 700; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;
+        }
+
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-stop { background: #f43f5e; color: white; }
+        .btn-reset { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); opacity: 0.9; }
     </style>
 </head>
-<body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+<body data-theme="purple">
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let players = {};
+<button class="theme-toggle" onclick="toggleTheme()">🌓 MODE</button>
 
-        // Nhận danh sách người chơi từ server
-        socket.on('currentPlayers', (serverPlayers) => {
-            players = serverPlayers;
-        });
+<div class="main-container">
+    <div class="title" id="mode-text">Sẵn sàng</div>
 
-        // Cập nhật khi có người khác di chuyển
-        socket.on('playerMoved', (data) => {
-            if (players[data.id]) {
-                players[data.id].x = data.x;
-                players[data.id].y = data.y;
-            }
-        });
+    <div class="timer-wrapper">
+        <div class="time-box">
+            <div class="number-slot" id="hh">00</div>
+            <div class="label">HOUR</div>
+        </div>
+        <div class="separator">:</div>
+        <div class="time-box">
+            <div class="number-slot" id="mm">00</div>
+            <div class="label">MIN</div>
+        </div>
+        <div class="separator">:</div>
+        <div class="time-box">
+            <div class="number-slot" id="ss">00</div>
+            <div class="label">SEC</div>
+        </div>
+    </div>
 
-        // Xóa người chơi khi họ thoát
-        socket.on('playerDisconnected', (id) => {
-            delete players[id];
-        });
+    <div class="input-box-container">
+        <label>PHÚT ĐẾM NGƯỢC</label>
+        <input type="number" id="input-mins" placeholder="Nhập số...">
+    </div>
 
-        // Điều khiển nhân vật bằng chuột
-        canvas.addEventListener('mousemove', (event) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
+    <div class="btn-group">
+        <button class="action-btn btn-primary" onclick="initTimer('countdown')">Đếm ngược</button>
+        <button class="action-btn btn-primary" style="filter: hue-rotate(45deg);" onclick="initTimer('stopwatch')">Bấm giờ</button>
+        <button class="action-btn btn-stop" id="pause-btn" onclick="togglePause()">Tạm dừng</button>
+        <button class="action-btn btn-reset" onclick="resetAll()">Reset</button>
+    </div>
+</div>
 
-            if (players[socket.id]) {
-                players[socket.id].x = mouseX;
-                players[socket.id].y = mouseY;
-                socket.emit('playerMovement', { x: mouseX, y: mouseY });
-            }
-        });
+<script>
+    let timerId;
+    let isPaused = false;
+    const elH = document.getElementById('hh'), elM = document.getElementById('mm'), elS = document.getElementById('ss');
+    const modeText = document.getElementById('mode-text'), pauseBtn = document.getElementById('pause-btn');
 
-        // Vòng lặp vẽ game (Render loop)
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa màn hình cũ
-            
-            for (let id in players) {
-                const p = players[id];
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x - 25, p.y - 25, 50, 50); // Vẽ hình vuông nhân vật
-                ctx.strokeRect(p.x - 25, p.y - 25, 50, 50);
-            }
-            requestAnimationFrame(draw);
+    function toggleTheme() {
+        const body = document.body;
+        const newTheme = body.getAttribute('data-theme') === 'purple' ? 'dark' : 'purple';
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('preferredTheme', newTheme);
+    }
+
+    if(localStorage.getItem('preferredTheme')) document.body.setAttribute('data-theme', localStorage.getItem('preferredTheme'));
+
+    window.onload = () => { if(localStorage.getItem('timerType')) startLoop(); };
+
+    function initTimer(type) {
+        localStorage.removeItem('endTime'); localStorage.removeItem('startTime');
+        const now = Date.now();
+        if (type === 'countdown') {
+            const mins = parseInt(document.getElementById('input-mins').value) || 0;
+            if (mins <= 0) return alert("Nhập số phút hợp lệ!");
+            localStorage.setItem('endTime', now + (mins * 60 * 1000));
+            modeText.innerText = "COUNTING DOWN";
+        } else {
+            localStorage.setItem('startTime', now);
+            modeText.innerText = "STOPWATCH RUNNING";
         }
-        draw();
-    </script>
+        localStorage.setItem('timerType', type);
+        isPaused = false;
+        startLoop();
+    }
+
+    function startLoop() {
+        if (timerId) clearInterval(timerId);
+        timerId = setInterval(update, 100);
+    }
+
+    function update() {
+        if (isPaused) return;
+        const type = localStorage.getItem('timerType');
+        const now = Date.now();
+        let diff = 0;
+
+        if (type === 'countdown') {
+            const endTime = parseInt(localStorage.getItem('endTime'));
+            diff = Math.max(0, endTime - now);
+            if (diff <= 0) { resetAll(); alert("Hết giờ!"); }
+        } else {
+            const startTime = parseInt(localStorage.getItem('startTime'));
+            diff = now - startTime;
+        }
+
+        const totalSecs = Math.floor(diff / 1000);
+        const h = Math.floor(totalSecs / 3600).toString().padStart(2, '0');
+        const m = Math.floor((totalSecs % 3600) / 60).toString().padStart(2, '0');
+        const s = (totalSecs % 60).toString().padStart(2, '0');
+
+        elH.innerText = h; elM.innerText = m; elS.innerText = s;
+        document.title = `${h}:${m}:${s} - ${type === 'countdown' ? 'Còn lại' : 'Bấm giờ'}`;
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            localStorage.setItem('pausedAt', Date.now());
+            pauseBtn.innerText = "Tiếp tục";
+        } else {
+            const pauseDuration = Date.now() - parseInt(localStorage.getItem('pausedAt'));
+            if (localStorage.getItem('timerType') === 'countdown') {
+                localStorage.setItem('endTime', parseInt(localStorage.getItem('endTime')) + pauseDuration);
+            } else {
+                localStorage.setItem('startTime', parseInt(localStorage.getItem('startTime')) + pauseDuration);
+            }
+            pauseBtn.innerText = "Tạm dừng";
+        }
+    }
+
+    function resetAll() {
+        clearInterval(timerId);
+        localStorage.clear();
+        elH.innerText = elM.innerText = elS.innerText = "00";
+        modeText.innerText = "READY";
+        pauseBtn.innerText = "Tạm dừng";
+        document.title = "00:00:00 - Timer";
+        isPaused = false;
+    }
+</script>
 </body>
 </html>
