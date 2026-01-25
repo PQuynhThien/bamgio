@@ -35,7 +35,7 @@
             overflow: hidden;
         }
 
-        /* Thanh điều khiển trên cùng */
+        
         .top-controls {
             position: absolute; top: 20px; right: 20px;
             display: flex; gap: 10px; z-index: 1001;
@@ -69,7 +69,7 @@
 
         .timer-wrapper { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 2.5rem; }
 
-        /* Giao diện số mặc định */
+        
         .number-slot {
             background: var(--number-bg);
             font-size: clamp(2rem, 10vw, 5.5rem);
@@ -80,7 +80,7 @@
             position: relative;
         }
 
-        /* Giao diện số Flip (ảnh b67598) */
+        
         [data-style="flip"] .number-slot {
             background: var(--flip-bg);
             border-radius: 8px;
@@ -237,7 +237,7 @@
         }
     }
 
-    // Logic đổi giao diện số (Mới)
+   
     function toggleStyle() {
         const current = document.body.getAttribute('data-style');
         const next = current === 'default' ? 'flip' : 'default';
@@ -425,3 +425,4 @@
 </script>
 </body>
 </html>
+
