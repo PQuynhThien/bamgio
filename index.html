@@ -3,526 +3,809 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aurora Timer - Rồng Thiêng Chào Xuân</title>
+    <title>Aurora Pro - Ultimate Time Suite v4.0</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&family=Montserrat:wght@300;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;700;900&family=Orbitron:wght@400;700;900&family=VT323&family=Silkscreen&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #8b5cf6;
-            --accent: #06b6d4;
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text: #f8fafc;
-            --neon-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --p: #8b5cf6; --a: #06b6d4; --bg: #020617; --c: rgba(30, 41, 59, 0.6); --t: #f8fafc;
+            --font-main: 'Inter', sans-serif;
+            --font-num: 'JetBrains Mono', monospace;
+            --glow: 0 0 20px rgba(139, 92, 246, 0.3);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            --radius: 20px;
         }
 
-        /* Danh sách chủ đề mở rộng */
-        [data-theme="sakura"] { --primary: #fb7185; --accent: #f472b6; --bg: #fff1f2; --card-bg: rgba(255, 255, 255, 0.8); --text: #881337; }
-        [data-theme="forest"] { --primary: #10b981; --accent: #34d399; --bg: #064e3b; --card-bg: rgba(6, 78, 59, 0.8); --text: #ecfdf5; }
-        [data-theme="midnight"] { --primary: #3b82f6; --accent: #2dd4bf; --bg: #020617; --card-bg: rgba(15, 23, 42, 0.9); --text: #f1f5f9; }
-        [data-theme="lava"] { --primary: #ef4444; --accent: #f97316; --bg: #450a0a; --card-bg: rgba(127, 29, 29, 0.8); --text: #fef2f2; }
-        [data-theme="cyberpunk"] { --primary: #d946ef; --accent: #0ea5e9; --bg: #1e1b4b; --card-bg: rgba(49, 46, 129, 0.8); --text: #fae8ff; }
-        [data-theme="gold"] { --primary: #eab308; --accent: #facc15; --bg: #422006; --card-bg: rgba(113, 63, 18, 0.8); --text: #fefce8; }
-        [data-theme="rose"] { --primary: #e11d48; --accent: #fb7185; --bg: #4c0519; --card-bg: rgba(136, 19, 55, 0.8); --text: #fff1f2; }
-        [data-theme="ocean"] { --primary: #0891b2; --accent: #22d3ee; --bg: #083344; --card-bg: rgba(21, 94, 117, 0.8); --text: #ecfeff; }
+        /* --- ADVANCED THEME SYSTEM --- */
+        [data-theme="midnight"] { --p: #38bdf8; --a: #818cf8; --bg: #0f172a; --c: rgba(30, 41, 59, 0.7); --t: #f1f5f9; --glow: 0 0 25px rgba(56, 189, 248, 0.4); }
+        [data-theme="neon"] { --p: #f0abfc; --a: #22d3ee; --bg: #0d0118; --c: rgba(45, 10, 70, 0.6); --t: #fdf4ff; --glow: 0 0 30px #f0abfc; }
+        [data-theme="galaxy"] { --p: #6366f1; --a: #f472b6; --bg: #030014; --c: rgba(15, 12, 41, 0.8); --t: #fafafa; --glow: 0 0 40px rgba(99, 102, 241, 0.5); }
+        [data-theme="matrix"] { --p: #22c55e; --a: #16a34a; --bg: #000a00; --c: rgba(0, 20, 0, 0.9); --t: #22c55e; --glow: 0 0 20px #22c55e; }
+        [data-theme="amoled"] { --p: #ffffff; --a: #475569; --bg: #000000; --c: #111111; --t: #ffffff; --glow: 0 0 0px transparent; }
+        [data-theme="retro"] { --p: #f97316; --a: #fbbf24; --bg: #2c1810; --c: rgba(60, 30, 20, 0.8); --t: #ffedd5; --glow: 0 0 15px #f97316; }
+        [data-theme="cyber"] { --p: #ffee00; --a: #00ff9f; --bg: #050505; --c: rgba(20, 20, 20, 0.95); --t: #ffee00; --glow: 0 0 25px #ffee00; }
+        [data-theme="pastel"] { --p: #fda4af; --a: #93c5fd; --bg: #f8fafc; --c: rgba(255, 255, 255, 0.8); --t: #1e293b; --glow: 0 5px 15px rgba(0,0,0,0.05); }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
+        /* --- GLOBAL RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg);
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text);
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: var(--transition); overflow: hidden;
-            position: relative;
+            font-family: var(--font-main); background: var(--bg); color: var(--t);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            transition: background 0.6s ease, color 0.6s ease; overflow: hidden; position: relative;
         }
 
-        body::before {
-            content: ""; position: absolute; inset: 0;
-            background-image: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
-            z-index: 1; pointer-events: none;
-        }
+        #bg-layer { position: fixed; inset: 0; background-size: cover; background-position: center; z-index: -2; transition: opacity 1s ease; opacity: 0; }
+        body.has-bg #bg-layer { opacity: 1; }
+        .bg-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: -1; backdrop-filter: blur(3px); display: none; }
+        body.has-bg .bg-overlay { display: block; }
+        [data-theme="pastel"].has-bg .bg-overlay { background: rgba(255,255,255,0.4); }
 
-        .dragon-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 50; display: none;
-        }
-        body[data-mode="tet"] .dragon-container { display: block; }
-
-        .dragon {
-            position: absolute; width: 150px; height: auto;
-            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.8));
-            animation: fly-around 15s linear infinite;
-        }
-
-        @keyframes fly-around {
-            0% { transform: translate(-100px, 10vh) rotate(10deg) scaleX(1); }
-            25% { transform: translate(50vw, 80vh) rotate(-10deg) scaleX(1); }
-            50% { transform: translate(110vw, 40vh) rotate(10deg) scaleX(1); }
-            50.1% { transform: translate(110vw, 40vh) rotate(10deg) scaleX(-1); }
-            75% { transform: translate(50vw, 10vh) rotate(-10deg) scaleX(-1); }
-            100% { transform: translate(-100px, 60vh) rotate(10deg) scaleX(-1); }
-        }
-
-        @keyframes digit-pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); color: var(--accent); }
-            100% { transform: scale(1); }
-        }
-        .digit-changed { animation: digit-pop 0.3s ease-out; }
-
-        .header { position: fixed; top: 2rem; right: 2rem; display: flex; gap: 1rem; z-index: 100; }
-        .icon-btn {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); color: var(--text);
-            padding: 12px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(15px);
-            transition: var(--transition); display: flex; align-items: center;
-        }
-        .icon-btn:hover { transform: scale(1.1) rotate(15deg); border-color: var(--primary); }
-        .icon-btn.danger-btn:hover { border-color: #f43f5e; color: #f43f5e; }
-
-        .container { text-align: center; width: 95%; max-width: 1000px; z-index: 60; }
-        .status-badge {
-            display: inline-block; padding: 8px 20px; background: var(--primary); color: white;
-            border-radius: 30px; font-size: 0.8rem; font-weight: 700; letter-spacing: 2px;
-            margin-bottom: 2rem; box-shadow: var(--neon-shadow); animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.8; } }
-
-        .timer-display { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: nowrap; }
-        .digit-group { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+        /* --- DISPLAY ARCHITECTURE --- */
+        .container { position: relative; z-index: 10; text-align: center; width: 95%; max-width: 1400px; padding: 20px; }
+        .timer-display { display: flex; align-items: center; justify-content: center; gap: clamp(5px, 2vw, 25px); margin-bottom: 2rem; perspective: 2000px; }
         
+        .digit-box { display: flex; flex-direction: column; align-items: center; position: relative; }
         .digit-card {
-            background: var(--card-bg); font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(2.5rem, 12vw, 7rem); font-weight: 800;
-            padding: 0 0.2em; min-width: 1.6em; height: 1.6em;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 24px; backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1); position: relative; transition: var(--transition);
-            will-change: transform;
+            font-family: var(--font-num); font-weight: 700; font-variant-numeric: tabular-nums;
+            font-size: clamp(3rem, 16vw, 11rem); min-width: 1.4em; height: 1.3em;
+            display: inline-flex; justify-content: center; align-items: center;
+            position: relative; transition: var(--transition);
+            overflow: hidden;
+        }
+        .sep { font-size: clamp(2rem, 10vw, 7rem); opacity: 0.4; font-family: var(--font-num); margin-top: -0.3em; align-self: center; }
+        .label { font-size: 0.75rem; font-weight: 800; opacity: 0.6; letter-spacing: 3px; margin-top: 15px; text-transform: uppercase; }
+
+        /* --- ALARM INFO DISPLAY --- */
+        .alarm-info {
+            height: 20px;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--a);
+            letter-spacing: 1px;
+            opacity: 0.8;
+            transition: var(--transition);
+            font-family: var(--font-num);
         }
 
-        body[data-mode="tet"] #ss { font-size: clamp(1.8rem, 8vw, 5rem); min-width: 2.8em; }
+        /* --- ANIMATIONS & EFFECTS --- */
+        @keyframes digit-pop {
+            0% { transform: translateY(10px); opacity: 0.5; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .animate-pop { animation: digit-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px var(--p); }
+            50% { box-shadow: 0 0 25px var(--p); }
+            100% { box-shadow: 0 0 5px var(--p); }
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        
+        .digit-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(transparent, rgba(255,255,255,0.05), transparent);
+            transform: translateY(-100%); transition: 0.3s; pointer-events: none;
+        }
+
+        [data-style="led"] .digit-card, [data-style="neon"] .digit-card, [data-style="cyber"] .digit-card {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+        [data-style="led"] .digit-card::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(transparent, var(--p), transparent);
+            opacity: 0.1; height: 2px; width: 100%;
+            animation: scanline 4s linear infinite;
+        }
+
+        /* --- CLOCK STYLES --- */
+        [data-style="glass"] .digit-card {
+            background: var(--c); backdrop-filter: blur(15px); border-radius: var(--radius);
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: var(--glow);
+        }
         [data-style="flip"] .digit-card {
-            background: linear-gradient(180deg, var(--card-bg) 50%, rgba(0,0,0,0.2) 50%);
-            border-bottom: 4px solid rgba(0,0,0,0.3);
+            background: #111; color: #eee; border-radius: 12px;
+            background: linear-gradient(to bottom, #222 50%, #111 50%);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
-        [data-style="flip"] .digit-card::after { content: ""; position: absolute; width: 100%; height: 2px; background: rgba(0,0,0,0.3); top: 50%; }
+        [data-style="flip"] .digit-card::after { content: ""; position: absolute; width: 100%; height: 1px; background: rgba(0,0,0,0.8); top: 50%; }
+        [data-style="neon"] { --font-num: 'Orbitron'; }
+        [data-style="neon"] .digit-card { background: transparent; color: var(--p); text-shadow: 0 0 10px var(--p), 0 0 30px var(--p), 0 0 60px var(--p); }
+        [data-style="led"] { --font-num: 'VT323'; }
+        [data-style="led"] .digit-card {
+            background: #050505; color: var(--p); border: 4px solid #1a1a1a; border-radius: 4px;
+            background-image: radial-gradient(var(--p) 20%, transparent 25%);
+            background-size: 6px 6px; text-shadow: 0 0 10px var(--p);
+        }
+        [data-style="cyber"] { --font-num: 'Orbitron'; }
+        [data-style="cyber"] .digit-card {
+            background: transparent; border-left: 5px solid var(--p); border-right: 5px solid var(--a);
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            background: rgba(255,255,255,0.05);
+        }
+        [data-style="minimal"] .digit-card { background: transparent; font-weight: 300; letter-spacing: -5px; }
+        [data-style="minimal"] .sep { font-weight: 100; opacity: 0.2; }
+        [data-style="retro"] { --font-num: 'Silkscreen'; }
+        [data-style="retro"] .digit-card {
+            background: #cbd5e1; color: #1e293b; border-radius: 4px;
+            box-shadow: inset 4px 4px 0 #94a3b8, 4px 4px 0 rgba(0,0,0,0.2);
+            padding: 0 10px;
+        }
 
-        .digit-card.editable { outline: 3px solid var(--accent); animation: bounce 0.5s ease-in-out; }
-        .label { margin-top: 1rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .sep { font-size: clamp(2rem, 8vw, 4rem); opacity: 0.5; margin-top: -1.5rem; font-family: serif; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        /* --- INPUT UX FIXES --- */
+        .digit-card.editable {
+            outline: none !important;
+            box-shadow: 0 0 15px var(--a) !important;
+            cursor: text;
+            caret-color: var(--a);
+            border-color: var(--a) !important;
+            transition: box-shadow 0.3s ease;
+            animation: none !important;
+        }
+        .digit-card.editable:focus {
+            box-shadow: 0 0 25px var(--a) !important;
+            filter: brightness(1.2);
+        }
 
-        .controls { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        /* --- UI ELEMENTS --- */
+        .status-badge {
+            background: var(--p); color: #000; font-weight: 900; padding: 8px 24px;
+            border-radius: 50px; font-size: 0.75rem; letter-spacing: 2.5px;
+            display: inline-block; margin-bottom: 2.5rem; box-shadow: var(--glow);
+            text-transform: uppercase; transition: var(--transition);
+        }
+        .toolbar { position: fixed; top: 2rem; right: 2rem; display: flex; gap: 12px; z-index: 100; }
+        .sidebar { position: fixed; bottom: 2rem; left: 2rem; display: flex; flex-direction: column; gap: 12px; z-index: 100; }
+        .icon-btn {
+            width: 52px; height: 52px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            background: var(--c); color: var(--t); cursor: pointer; backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; transition: var(--transition);
+        }
+        .icon-btn:hover { background: var(--p); color: #000; transform: translateY(-5px) rotate(8deg); border-color: transparent; }
+        .main-controls { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .btn {
-            padding: 16px 28px; border-radius: 16px; border: none; font-weight: 800;
-            text-transform: uppercase; cursor: pointer; transition: var(--transition);
-            display: flex; align-items: center; gap: 10px; font-size: 0.8rem; letter-spacing: 1px;
-            backdrop-filter: blur(10px);
+            padding: 18px 32px; border-radius: 16px; border: none; font-weight: 800;
+            cursor: pointer; transition: var(--transition); display: flex; align-items: center;
+            gap: 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px;
+            font-family: var(--font-main); position: relative; overflow: hidden;
         }
-        .btn-main { background: var(--primary); color: white; box-shadow: var(--neon-shadow); }
-        .btn-outline { background: var(--card-bg); border: 2px solid rgba(255,255,255,0.1); color: var(--text); }
-        .btn-danger { background: #f43f5e; color: white; }
+        .btn-p { background: var(--p); color: #000; box-shadow: var(--glow); }
+        .btn-p:hover { transform: scale(1.05) translateY(-2px); filter: brightness(1.1); }
+        .btn-s { background: var(--c); color: var(--t); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .btn-s:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
 
-        .dropdown { position: relative; }
+        #settings-panel {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(30px);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+        }
+        .settings-card {
+            background: #0f172a; width: 100%; max-width: 550px; padding: 40px;
+            border-radius: 32px; border: 1px solid rgba(255,255,255,0.1);
+            max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .setting-group { margin-bottom: 28px; }
+        .setting-group h4 { font-size: 0.8rem; opacity: 0.5; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .swatch { height: 48px; border-radius: 12px; cursor: pointer; border: 3px solid transparent; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .swatch.active { border-color: #fff; transform: scale(1.1); }
+
         .dropdown-menu {
-            position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: var(--card-bg); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; width: 250px; padding: 10px; visibility: hidden; opacity: 0;
-            transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000;
+            position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+            background: #1e293b; border-radius: 20px; padding: 10px; width: 240px;
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 200;
         }
-        .dropdown:hover .dropdown-menu { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-        .menu-item {
-            width: 100%; padding: 12px 20px; border: none; background: transparent;
-            color: var(--text); text-align: left; cursor: pointer; border-radius: 12px;
-            font-weight: 600; display: flex; align-items: center; gap: 10px;
+        .dropdown-item {
+            width: 100%; border: none; background: transparent; color: #cbd5e1;
+            padding: 14px 18px; text-align: left; border-radius: 12px; cursor: pointer;
+            font-size: 0.9rem; transition: 0.2s; display: flex; align-items: center; gap: 12px;
         }
-        .menu-item:hover { background: var(--primary); color: white; }
+        .dropdown-item:hover { background: var(--p); color: #000; font-weight: 700; }
 
-        #modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-            z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+        #alarm-modal {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            animation: alarm-flash 0.5s infinite alternate;
         }
-        .modal-box {
-            background: var(--card-bg); padding: 3rem; border-radius: 40px;
-            text-align: center; border: 1px solid var(--primary); box-shadow: var(--neon-shadow);
+        @keyframes alarm-flash { from { background: #000; } to { background: #450a0a; } }
+        .hidden { display: none !important; }
+
+        .tet-layout { gap: clamp(2px, 1vw, 15px) !important; }
+        .tet-layout .sep { margin: 0 5px; }
+
+        @media (max-width: 768px) {
+            .toolbar { top: 1rem; right: 1rem; }
+            .sidebar { left: auto; right: 1rem; bottom: 50%; transform: translateY(50%); }
+            .timer-display { gap: 10px; }
+            .digit-card { min-width: 1.3em; }
+            .main-controls { padding-bottom: 3rem; }
         }
-        #bg-upload, #alarm-sound-upload { display: none; }
     </style>
 </head>
-<body data-theme="midnight" data-style="default">
+<body data-theme="midnight" data-style="glass">
 
-    <div class="dragon-container">
-        <svg class="dragon" viewBox="0 0 100 100">
-            <path fill="#e11d48" d="M90,50c0,0-5-15-15-15s-15,10-15,10s-5-10-15-10s-15,15-15,15s-5,10-15,10s-15-10-15-10v5c0,0,5,15,15,15s15-10,15-10s5,10,15,10s15-15,15-15s5-10,15-10s15,10,15,10V50z">
-                <animate attributeName="d" dur="2s" repeatCount="indefinite" 
-                    values="M90,50c0,0-5-15-15-15s-15,10-15,10s-5-10-15-10s-15,15-15,15s-5,10-15,10s-15-10-15-10v5c0,0,5,15,15,15s15-10,15-10s5,10,15,10s15-15,15-15s5-10,15-10s15,10,15,10V50z;
-                            M90,45c0,0-5-10-15-10s-15,15-15,15s-5-15-15-15s-15,10-15,10s-5,15-15,15s-15-15-15-15v5c0,0,5,10,15,10s15-15,15-15s5,15,15,15s15-10,15-10s5-15,15-15s15,15,15,15V45z;
-                            M90,50c0,0-5-15-15-15s-15,10-15,10s-5-10-15-10s-15,15-15,15s-5,10-15,10s-15-10-15-10v5c0,0,5,15,15,15s15-10,15-10s5,10,15,10s15-15,15-15s5-10,15-10s15,10,15,10V50z" />
-            </path>
-            <circle cx="85" cy="40" r="2" fill="yellow" />
-            <circle cx="85" cy="40" r="0.8" fill="black" />
-        </svg>
+    <div id="bg-layer"></div>
+    <div class="bg-overlay"></div>
+
+    <div class="toolbar">
+        <button class="icon-btn" onclick="UI.toggleSettings()" title="Thiết lập">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+        <button class="icon-btn" onclick="UI.toggleFullscreen()" title="Toàn màn hình">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+        </button>
     </div>
 
-    <div class="header">
-        <button class="icon-btn danger-btn" onclick="clearAllCache()" title="Xóa toàn bộ Cache & Ảnh nền">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+    <div class="sidebar">
+        <button class="icon-btn" onclick="document.getElementById('bg-up').click()" title="Đổi ảnh nền">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         </button>
-
-        <button class="icon-btn" onclick="document.getElementById('alarm-sound-upload').click()" title="Đổi tiếng chuông (mp3)">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+        <button class="icon-btn" onclick="document.getElementById('sound-up').click()" title="Âm thanh báo thức">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
         </button>
-        <input type="file" id="alarm-sound-upload" accept="audio/*" onchange="handleSoundUpload(this)">
-
-        <button class="icon-btn" onclick="document.getElementById('bg-upload').click()" title="Tải ảnh nền">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        </button>
-        <input type="file" id="bg-upload" accept="image/*" onchange="handleBgUpload(this)">
-        
-        <button class="icon-btn" onclick="nextTheme()" title="Đổi màu nền">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        </button>
-        <button class="icon-btn" onclick="toggleStyle()" title="Giao diện số">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM9 10v4m3-6v8m3-4v4"></path></svg>
-        </button>
+        <input type="file" id="bg-up" class="hidden" accept="image/*" onchange="Assets.handleBg(this)">
+        <input type="file" id="sound-up" class="hidden" accept="audio/*" onchange="Assets.handleSound(this)">
     </div>
 
     <div class="container">
-        <div class="status-badge" id="mode-text">SẴN SÀNG</div>
+        <div class="status-badge" id="mode-label">System Active</div>
         
-        <div class="timer-display">
-            <div class="digit-group">
-                <div class="digit-card" id="hh" onfocus="clearIfZero(this)" onblur="validateEntry(this)">00</div>
-                <div class="label" id="l-h">HOUR</div>
+        <div class="timer-display" id="main-display">
+            <div class="digit-box hidden" id="d-box">
+                <div class="digit-card" id="d-val">00</div>
+                <div class="label" id="d-lab">Days</div>
             </div>
-            <div class="sep">:</div>
-            <div class="digit-group">
-                <div class="digit-card" id="mm" onfocus="clearIfZero(this)" onblur="validateEntry(this)">00</div>
-                <div class="label" id="l-m">MIN</div>
+            <div class="sep hidden" id="sep-0">:</div>
+
+            <div class="digit-box" id="h-box">
+                <div class="digit-card" id="h-val">00</div>
+                <div class="label" id="h-lab">Hours</div>
+            </div>
+            <div class="sep" id="sep-1">:</div>
+            <div class="digit-box">
+                <div class="digit-card" id="m-val">00</div>
+                <div class="label" id="m-lab">Mins</div>
             </div>
             <div class="sep" id="sep-2">:</div>
-            <div class="digit-group" id="sec-box">
-                <div class="digit-card" id="ss" onfocus="clearIfZero(this)" onblur="validateEntry(this)">00</div>
-                <div class="label" id="l-s">SEC</div>
+            <div class="digit-box" id="s-box">
+                <div class="digit-card" id="s-val">00</div>
+                <div class="label" id="s-lab">Secs</div>
             </div>
         </div>
 
-        <div class="controls">
-            <div class="dropdown">
-                <button class="btn btn-outline">Chế độ ▾</button>
-                <div class="dropdown-menu">
-                    <button class="menu-item" onclick="startClockMode()">🕒 Giờ hiện tại</button>
-                    <button class="menu-item" onclick="startTetCountdown()">🏮 Tết Ất Tỵ 2026</button>
-                    <button class="menu-item" onclick="enableManualEdit('countdown')">✍️ Tùy chỉnh đếm ngược</button>
-                    <button class="menu-item" onclick="enableManualEdit('alarm')" style="color: #fbbf24;">⏰ Đặt báo thức</button>
+        <div id="alarm-info" class="alarm-info"></div>
+
+        <div class="main-controls">
+            <div style="position: relative;">
+                <button class="btn btn-s" onclick="UI.toggleDropdown('mode-menu')">Chế độ ▾</button>
+                <div id="mode-menu" class="dropdown-menu hidden">
+                    <button class="dropdown-item" onclick="Core.setMode('clock')">🕒 Giờ hệ thống</button>
+                    <button class="dropdown-item" onclick="Core.setMode('tet')">🏮 Đếm ngược Tết 2026</button>
+                    <button class="dropdown-item" onclick="Core.setMode('stopwatch')">⏱️ Đồng hồ bấm giờ</button>
+                    <button class="dropdown-item" onclick="Core.enterManual('countdown')">⏲️ Hẹn giờ đếm ngược</button>
+                    <button class="dropdown-item" onclick="Core.enterManual('alarm')">🔔 Báo thức cá nhân</button>
                 </div>
             </div>
-            <button class="btn btn-main" id="main-action-btn" onclick="initTimer('stopwatch')">Bấm giờ</button>
-            <button class="btn btn-outline" id="pause-btn" onclick="togglePause()">Tạm dừng</button>
-            <button class="btn btn-danger" onclick="resetAll()">Làm mới</button>
+            <button class="btn btn-p" id="start-btn" onclick="Core.handleStart()">Bắt đầu</button>
+            <button class="btn btn-s hidden" id="pause-btn" onclick="Core.togglePause()">Tạm dừng</button>
+            <button class="btn btn-s" style="color: #ff4d4d;" onclick="Core.resetAll()">Reset</button>
         </div>
     </div>
 
-    <div id="modal">
-        <div class="modal-box">
-            <h1 id="alarm-title" style="margin-bottom: 2rem; font-size: 2.5rem;">⏰ HẾT GIỜ!</h1>
-            <button class="btn btn-main" style="width: 100%" onclick="stopAlarm()">TẮT CHUÔNG</button>
+    <div id="settings-panel">
+        <div class="settings-card">
+            <h2 style="margin-bottom: 30px; font-family: 'Orbitron'; font-size: 1.4rem; color: var(--p); letter-spacing: 2px;">CẤU HÌNH HỆ THỐNG</h2>
+            <div class="setting-group">
+                <h4>Chủ đề giao diện</h4>
+                <div class="grid-4" id="theme-grid">
+                    <div class="swatch" style="background: #38bdf8" onclick="UI.applyTheme('midnight')">MID</div>
+                    <div class="swatch" style="background: #f0abfc" onclick="UI.applyTheme('neon')">NEON</div>
+                    <div class="swatch" style="background: #6366f1" onclick="UI.applyTheme('galaxy')">GALAXY</div>
+                    <div class="swatch" style="background: #22c55e" onclick="UI.applyTheme('matrix')">MATRIX</div>
+                    <div class="swatch" style="background: #ffffff; color: #000" onclick="UI.applyTheme('amoled')">OLED</div>
+                    <div class="swatch" style="background: #f97316" onclick="UI.applyTheme('retro')">RETRO</div>
+                    <div class="swatch" style="background: #ffee00; color: #000" onclick="UI.applyTheme('cyber')">CYBER</div>
+                    <div class="swatch" style="background: #fda4af" onclick="UI.applyTheme('pastel')">SOFT</div>
+                </div>
+            </div>
+            <div class="setting-group">
+                <h4>Kiểu dáng đồng hồ</h4>
+                <div class="grid-3">
+                    <button class="btn btn-s swatch" onclick="UI.applyStyle('glass')">Glass</button>
+                    <button class="btn btn-s swatch" onclick="UI.applyStyle('flip')">Flip</button>
+                    <button class="btn btn-s swatch" onclick="UI.applyStyle('neon')">Neon</button>
+                    <button class="btn btn-s swatch" onclick="UI.applyStyle('led')">LED</button>
+                    <button class="btn btn-s swatch" onclick="UI.applyStyle('cyber')">Cyber</button>
+                    <button class="btn btn-s swatch" onclick="UI.applyStyle('minimal')">Min</button>
+                    <button class="btn btn-s swatch" onclick="UI.applyStyle('retro')">Classic</button>
+                </div>
+            </div>
+            <div class="setting-group">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <h4>Âm lượng</h4>
+                    <span id="vol-txt">100%</span>
+                </div>
+                <input type="range" id="vol-slider" min="0" max="100" value="100" style="width: 100%; accent-color: var(--p);" oninput="Assets.updateVol(this.value)">
+            </div>
+            <div class="setting-group" style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size: 0.85rem; font-weight: 700;">Hiển thị kim giây</label>
+                <input type="checkbox" id="show-sec" checked onchange="UI.toggleSec(this.checked)">
+            </div>
+            <div class="setting-group" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px; display: flex; gap: 10px;">
+                <button class="btn btn-s" style="flex: 1; color: #ff4d4d; border-color: rgba(255, 77, 77, 0.2);" onclick="UI.clearCache()">Xóa Cache</button>
+                <button class="btn btn-p" style="flex: 2;" onclick="UI.toggleSettings()">Lưu & Đóng</button>
+            </div>
         </div>
     </div>
 
-    <audio id="custom-alarm-audio" loop></audio>
+    <div id="alarm-modal">
+        <div style="text-align: center;">
+            <div style="font-size: 6rem; margin-bottom: 2rem; filter: drop-shadow(0 0 20px #ff0000);">🔔</div>
+            <h1 id="alarm-msg" style="font-size: clamp(2rem, 10vw, 5rem); margin-bottom: 3rem; font-family: 'Orbitron'; color: #fff;">ALERT!</h1>
+            <button class="btn btn-p" style="padding: 25px 80px; font-size: 1.5rem;" onclick="Core.stopAlarm()">DỪNG LẠI</button>
+        </div>
+    </div>
+
+    <audio id="alarm-audio" loop></audio>
 
     <script>
-        let timerId, alarmInterval, fireworkInterval;
-        let isPaused = false, isEditMode = false;
-        let currentEditType = 'countdown';
-        const themes = ['midnight', 'sakura', 'forest', 'lava', 'cyberpunk', 'gold', 'rose', 'ocean'];
-        
-        const elH = document.getElementById('hh'), elM = document.getElementById('mm'), elS = document.getElementById('ss');
-        const lblH = document.getElementById('l-h'), lblM = document.getElementById('l-m'), lblS = document.getElementById('l-s');
-        const modeText = document.getElementById('mode-text'), pauseBtn = document.getElementById('pause-btn');
-        const mainBtn = document.getElementById('main-action-btn');
-        const secBox = document.getElementById('sec-box'), sep2 = document.getElementById('sep-2');
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const customAudioEl = document.getElementById('custom-alarm-audio');
+        const State = {
+            mode: 'clock', 
+            isActive: false,
+            isPaused: false,
+            startTime: 0,
+            endTime: 0,
+            pauseOffset: 0,
+            isManual: false,
+            lastTick: 0,
+            alarmTriggered: false,
+            tetTarget: new Date('February 17, 2026 00:00:00').getTime()
+        };
 
-        window.onload = () => {
-            const savedTheme = localStorage.getItem('theme') || 'midnight';
-            document.body.setAttribute('data-theme', savedTheme);
-            
-            const savedBg = localStorage.getItem('customBg');
-            if (savedBg) document.body.style.backgroundImage = `url(${savedBg})`;
+        const Elements = {
+            d: document.getElementById('d-val'),
+            h: document.getElementById('h-val'),
+            m: document.getElementById('m-val'),
+            s: document.getElementById('s-val'),
+            dBox: document.getElementById('d-box'),
+            hBox: document.getElementById('h-box'),
+            sep0: document.getElementById('sep-0'),
+            modeLab: document.getElementById('mode-label'),
+            startBtn: document.getElementById('start-btn'),
+            pauseBtn: document.getElementById('pause-btn'),
+            sBox: document.getElementById('s-box'),
+            audio: document.getElementById('alarm-audio'),
+            modal: document.getElementById('alarm-modal'),
+            alarmInfo: document.getElementById('alarm-info')
+        };
 
-            const savedSound = localStorage.getItem('customAlarmSound');
-            if (savedSound) customAudioEl.src = savedSound;
+        const Core = {
+            init() {
+                Assets.load();
+                this.bindEvents();
+                this.loadPersistence();
+                this.startLoop();
+            },
 
-            const savedStyle = localStorage.getItem('timerStyle') || 'default';
-            document.body.setAttribute('data-style', savedStyle);
+            startLoop() {
+                const tick = () => {
+                    const now = Date.now();
+                    if (now - State.lastTick >= 100) {
+                        State.lastTick = now;
+                        this.process();
+                        this.savePersistence();
+                    }
+                    requestAnimationFrame(tick);
+                };
+                requestAnimationFrame(tick);
+            },
 
-            const type = localStorage.getItem('timerType');
-            if (type) {
-                isPaused = localStorage.getItem('isPaused') === 'true';
-                if (isPaused) pauseBtn.innerText = "Tiếp tục";
-                updateModeUI(type);
-                startLoop();
+            process() {
+                if (State.isManual) return;
+                let h = 0, m = 0, s = 0, d = null;
+                const now = Date.now();
+
+                switch(State.mode) {
+                    case 'clock':
+                        const date = new Date();
+                        h = date.getHours(); m = date.getMinutes(); s = date.getSeconds();
+                        break;
+                    case 'stopwatch':
+                        if (State.isActive) {
+                            const diff = Math.floor(((State.isPaused ? State.pauseOffset : now) - State.startTime) / 1000);
+                            h = Math.floor(diff / 3600);
+                            m = Math.floor((diff % 3600) / 60);
+                            s = diff % 60;
+                        }
+                        break;
+                    case 'countdown':
+                        if (State.isActive) {
+                            const remain = Math.max(0, State.endTime - (State.isPaused ? State.pauseOffset : now));
+                            if (remain <= 0 && !State.alarmTriggered) this.triggerAlarm("HẾT GIỜ!");
+                            const total = Math.floor(remain / 1000);
+                            h = Math.floor(total / 3600);
+                            m = Math.floor((total % 3600) / 60);
+                            s = total % 60;
+                        }
+                        break;
+                    case 'tet':
+                        const diffTet = State.tetTarget - now;
+                        if (diffTet <= 0) {
+                            d = 0; h = 0; m = 0; s = 0;
+                            if (!State.alarmTriggered) this.triggerAlarm("CHÚC MỪNG NĂM MỚI 2026!");
+                        } else {
+                            const ts = Math.floor(diffTet / 1000);
+                            d = Math.floor(ts / 86400);
+                            h = Math.floor((ts % 86400) / 3600);
+                            m = Math.floor((ts % 3600) / 60);
+                            s = ts % 60;
+                        }
+                        break;
+                    case 'alarm':
+                        const ad = new Date();
+                        h = ad.getHours(); m = ad.getMinutes(); s = ad.getSeconds();
+                        if (State.isActive && !State.alarmTriggered) {
+                            const target = new Date(State.endTime);
+                            if (ad.getTime() >= target.getTime()) {
+                                this.triggerAlarm("BÁO THỨC!");
+                            }
+                        }
+                        break;
+                }
+                this.render(h, m, s, d);
+            },
+
+            render(h, m, s, d = null) {
+                const hh = String(h).padStart(2, '0');
+                const mm = String(m).padStart(2, '0');
+                const ss = String(s).padStart(2, '0');
+                const dd = d !== null ? String(d).padStart(2, '0') : null;
+
+                const updateDigit = (el, newVal) => {
+                    if (el.innerText !== newVal) {
+                        el.innerText = newVal;
+                        if (!State.isManual) {
+                            el.classList.remove('animate-pop');
+                            void el.offsetWidth;
+                            el.classList.add('animate-pop');
+                        }
+                    }
+                };
+
+                if (dd !== null) {
+                    updateDigit(Elements.d, dd);
+                    updateDigit(Elements.h, hh);
+                    updateDigit(Elements.m, mm);
+                    updateDigit(Elements.s, ss);
+                    document.title = `${dd}d ${hh}:${mm}:${ss} | Tết 2026`;
+                } else {
+                    updateDigit(Elements.h, hh);
+                    updateDigit(Elements.m, mm);
+                    updateDigit(Elements.s, ss);
+                    document.title = `${hh}:${mm}:${ss} | Aurora Pro`;
+                }
+            },
+
+            setMode(m) {
+                this.resetState();
+                State.mode = m;
+                UI.updateUI();
+                UI.closeAllMenus();
+            },
+
+            handleStart() {
+                if (State.isManual) {
+                    const h = parseInt(Elements.h.innerText) || 0;
+                    const m = parseInt(Elements.m.innerText) || 0;
+                    const s = parseInt(Elements.s.innerText) || 0;
+                    if (State.mode === 'countdown') {
+                        State.endTime = Date.now() + (h * 3600 + m * 60 + s) * 1000;
+                    } else if (State.mode === 'alarm') {
+                        let d = new Date();
+                        d.setHours(h, m, s, 0); // Đã thêm s để chính xác hơn
+                        if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
+                        State.endTime = d.getTime();
+                    }
+                    this.exitManual();
+                }
+                if (State.mode === 'stopwatch' && !State.isActive) State.startTime = Date.now();
+                State.isActive = true;
+                State.isPaused = false;
+                UI.updateUI();
+            },
+
+            togglePause() {
+                if (!State.isActive || State.alarmTriggered) return;
+                if (!State.isPaused) {
+                    State.isPaused = true;
+                    State.pauseOffset = Date.now();
+                } else {
+                    const gap = Date.now() - State.pauseOffset;
+                    if (State.mode === 'stopwatch') State.startTime += gap;
+                    if (State.mode === 'countdown') State.endTime += gap;
+                    State.isPaused = false;
+                }
+                UI.updateUI();
+            },
+
+            resetState() {
+                State.isActive = false;
+                State.isPaused = false;
+                State.isManual = false;
+                State.alarmTriggered = false;
+                State.startTime = 0;
+                State.endTime = 0;
+                State.pauseOffset = 0;
+                this.exitManual();
+                localStorage.removeItem('aurora_state_persistence');
+                UI.updateAlarmDisplay();
+            },
+
+            resetAll() {
+                this.resetState();
+                Elements.d.innerText = "00";
+                Elements.h.innerText = "00";
+                Elements.m.innerText = "00";
+                Elements.s.innerText = "00";
+                UI.updateUI();
+            },
+
+            enterManual(m) {
+                this.setMode(m);
+                State.isManual = true;
+                [Elements.h, Elements.m, Elements.s].forEach(el => {
+                    el.innerText = "00";
+                    el.contentEditable = "true";
+                    el.classList.add('editable');
+                    el.dataset.fresh = "true";
+                });
+                UI.updateUI();
+                Elements.h.focus();
+            },
+
+            exitManual() {
+                State.isManual = false;
+                [Elements.h, Elements.m, Elements.s].forEach(el => {
+                    el.contentEditable = "false";
+                    el.classList.remove('editable');
+                    delete el.dataset.fresh;
+                });
+            },
+
+            triggerAlarm(msg) {
+                State.alarmTriggered = true;
+                State.isActive = false;
+                document.getElementById('alarm-msg').innerText = msg;
+                Elements.modal.style.display = 'flex';
+                if (Elements.audio.src) Elements.audio.play().catch(() => Assets.beep());
+                else Assets.beep();
+                if (msg.includes('TẾT') || msg.includes('MỚI')) Assets.launchConfetti();
+                localStorage.removeItem('aurora_state_persistence');
+                UI.updateAlarmDisplay();
+            },
+
+            stopAlarm() {
+                Elements.modal.style.display = 'none';
+                Elements.audio.pause();
+                Elements.audio.currentTime = 0;
+                this.resetAll();
+            },
+
+            savePersistence() {
+                if (State.mode === 'stopwatch' || State.mode === 'alarm' || State.mode === 'countdown') {
+                    const data = {
+                        mode: State.mode,
+                        isActive: State.isActive,
+                        isPaused: State.isPaused,
+                        startTime: State.startTime,
+                        endTime: State.endTime,
+                        pauseOffset: State.pauseOffset
+                    };
+                    localStorage.setItem('aurora_state_persistence', JSON.stringify(data));
+                }
+            },
+
+            loadPersistence() {
+                const saved = localStorage.getItem('aurora_state_persistence');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    Object.assign(State, data);
+                    
+                    if (State.mode === 'alarm' && State.isActive) {
+                        if (Date.now() >= State.endTime) {
+                            setTimeout(() => this.triggerAlarm("BÁO THỨC!"), 500);
+                        }
+                    }
+                    if (State.mode === 'countdown' && State.isActive && !State.isPaused) {
+                         if (Date.now() >= State.endTime) {
+                            setTimeout(() => this.triggerAlarm("HẾT GIỜ!"), 500);
+                        }
+                    }
+                    UI.updateUI();
+                } else {
+                    this.setMode('clock');
+                }
+            },
+
+            bindEvents() {
+                [Elements.h, Elements.m, Elements.s].forEach(el => {
+                    el.addEventListener('focus', () => {
+                        if (State.isManual) el.dataset.fresh = "true";
+                    });
+                    el.addEventListener('keydown', (e) => {
+                        if (!State.isManual) return;
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            el.blur();
+                            return;
+                        }
+                        if (e.key.length === 1 && /\d/.test(e.key)) {
+                            e.preventDefault();
+                            if (el.dataset.fresh === "true") {
+                                el.innerText = e.key;
+                                el.dataset.fresh = "false";
+                            } else {
+                                let val = el.innerText + e.key;
+                                el.innerText = val.slice(-2);
+                            }
+                        } else if (e.key === 'Backspace') {
+                            e.preventDefault();
+                            el.innerText = "00";
+                            el.dataset.fresh = "true";
+                        }
+                    });
+                    el.addEventListener('blur', () => {
+                        el.innerText = el.innerText.padStart(2, '0');
+                    });
+                });
             }
         };
 
-        function clearAllCache() {
-            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ ảnh nền, âm thanh và cài đặt không?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // --- HÀM TẢI NHẠC CHUÔNG MỚI ---
-        function handleSoundUpload(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Sound = e.target.result;
-                    try {
-                        localStorage.setItem('customAlarmSound', base64Sound);
-                        customAudioEl.src = base64Sound;
-                        alert("Đã cập nhật tiếng chuông mới!");
-                    } catch (err) {
-                        alert("File nhạc quá lớn! Vui lòng chọn file dưới 2MB.");
-                    }
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function handleBgUpload(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const maxWidth = 1920;
-                        const scale = Math.min(1, maxWidth / img.width);
-                        canvas.width = img.width * scale;
-                        canvas.height = img.height * scale;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                        document.body.style.backgroundImage = `url(${compressedBase64})`;
-                        try { localStorage.setItem('customBg', compressedBase64); } catch (err) { alert("Ảnh quá lớn!"); }
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function nextTheme() {
-            let current = document.body.getAttribute('data-theme');
-            let next = themes[(themes.indexOf(current) + 1) % themes.length];
-            document.body.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            const savedBg = localStorage.getItem('customBg');
-            if (savedBg) document.body.style.backgroundImage = `url(${savedBg})`;
-        }
-
-        function toggleStyle() {
-            const current = document.body.getAttribute('data-style');
-            const next = current === 'default' ? 'flip' : 'default';
-            document.body.setAttribute('data-style', next);
-            localStorage.setItem('timerStyle', next);
-        }
-
-        function updateModeUI(type) {
-            document.body.setAttribute('data-mode', type);
-            secBox.style.display = (type === 'alarm') ? 'none' : 'block';
-            sep2.style.display = (type === 'alarm') ? 'none' : 'block';
-            if (type === 'tet') {
-                modeText.innerText = "🧧 CHỜ TẾT 2026";
-                lblH.innerText = "NGÀY"; lblM.innerText = "GIỜ"; lblS.innerText = "PHÚT / GIÂY";
-            } else {
-                lblH.innerText = "GIỜ"; lblM.innerText = "PHÚT"; lblS.innerText = "GIÂY";
-                if (type === 'stopwatch') modeText.innerText = "ĐANG BẤM GIỜ";
-                else if (type === 'clock') modeText.innerText = "🕒 GIỜ HIỆN TẠI";
-                else if (type === 'alarm') modeText.innerText = "🔔 ĐANG ĐỢI BÁO THỨC";
-                else modeText.innerText = "ĐANG ĐẾM NGƯỢC";
-            }
-        }
-
-        function clearIfZero(el) { if (isEditMode && el.innerText === "00") el.innerText = ""; }
-
-        function enableManualEdit(mode) {
-            resetAll(); isEditMode = true; currentEditType = mode;
-            modeText.innerText = (mode === 'alarm') ? "NHẬP GIỜ BÁO THỨC (24H)" : "THIẾT LẬP THỜI GIAN";
-            mainBtn.innerText = (mode === 'alarm') ? "ĐẶT BÁO THỨC" : "BẮT ĐẦU";
-            mainBtn.onclick = () => initTimer(mode);
-            if(mode === 'alarm') { secBox.style.display = 'none'; sep2.style.display = 'none'; }
-            [elH, elM, elS].forEach(el => { el.contentEditable = "true"; el.classList.add('editable'); });
-            elH.focus();
-        }
-
-        function disableManualEdit() {
-            isEditMode = false;
-            mainBtn.innerText = "Bấm giờ"; mainBtn.onclick = () => initTimer('stopwatch');
-            [elH, elM, elS].forEach(el => { el.contentEditable = "false"; el.classList.remove('editable'); });
-        }
-
-        function validateEntry(el) {
-            let val = el.innerText.replace(/[^0-9]/g, '');
-            if (!val) val = "00";
-            if (el.id === 'hh' && parseInt(val) > 23 && currentEditType === 'alarm') val = "23";
-            else if (el.id === 'hh' && parseInt(val) > 99) val = "99";
-            if (el.id !== 'hh' && parseInt(val) > 59) val = "59";
-            el.innerText = val.padStart(2, '0');
-        }
-
-        function initTimer(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            if (type === 'countdown') {
-                const h = parseInt(elH.innerText) || 0, m = parseInt(elM.innerText) || 0, s = parseInt(elS.innerText) || 0;
-                let durationMs = (h * 3600 + m * 60 + s) * 1000;
-                if (durationMs <= 0) return;
-                localStorage.setItem('timerType', 'countdown'); localStorage.setItem('endTime', Date.now() + durationMs);
-            } else if (type === 'alarm') {
-                localStorage.setItem('timerType', 'alarm'); localStorage.setItem('alarmTime', elH.innerText + ":" + elM.innerText);
-            } else if (type === 'stopwatch') {
-                localStorage.setItem('timerType', 'stopwatch'); localStorage.setItem('startTime', Date.now());
-            }
-            disableManualEdit(); updateModeUI(localStorage.getItem('timerType'));
-            isPaused = false; localStorage.setItem('isPaused', 'false'); startLoop();
-        }
-
-        function startClockMode() {
-            resetAll(); localStorage.setItem('timerType', 'clock'); updateModeUI('clock'); startLoop();
-        }
-
-        function startLoop() { if (timerId) clearInterval(timerId); timerId = setInterval(update, 100); }
-
-        function update() {
-            if (isPaused || isEditMode) return;
-            const type = localStorage.getItem('timerType');
-            if (!type) return;
-            const now = new Date();
-            let dH, dM, dS;
-
-            if (type === 'clock') {
-                dH = now.getHours().toString().padStart(2, '0');
-                dM = now.getMinutes().toString().padStart(2, '0');
-                dS = now.getSeconds().toString().padStart(2, '0');
-            } else if (type === 'alarm') {
-                const [aH, aM] = localStorage.getItem('alarmTime').split(':').map(Number);
-                dH = now.getHours().toString().padStart(2, '0');
-                dM = now.getMinutes().toString().padStart(2, '0');
-                if (now.getHours() === aH && now.getMinutes() === aM && now.getSeconds() === 0) { startAlarm("⏰ ĐẾN GIỜ BÁO THỨC!"); }
-            } else if (type === 'countdown' || type === 'tet') {
-                const end = parseInt(localStorage.getItem('endTime')) || 0;
-                let diff = Math.max(0, end - now.getTime());
-                if (diff <= 0) {
-                    clearInterval(timerId);
-                    if (type === 'tet') { triggerFirework(); startAlarm("🧨 CHÚC MỪNG NĂM MỚI!"); }
-                    else startAlarm("⏰ HẾT GIỜ RỒI!");
+        const UI = {
+            toggleSettings() {
+                const p = document.getElementById('settings-panel');
+                p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+            },
+            toggleDropdown(id) {
+                const el = document.getElementById(id);
+                const isHidden = el.classList.contains('hidden');
+                this.closeAllMenus();
+                if (isHidden) el.classList.remove('hidden');
+            },
+            closeAllMenus() {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+            },
+            applyTheme(t) {
+                document.body.setAttribute('data-theme', t);
+                localStorage.setItem('aurora_theme_v4', t);
+                document.querySelectorAll('.swatch').forEach(s => {
+                    s.classList.toggle('active', s.innerText.toLowerCase() === t.substring(0, 4));
+                });
+            },
+            applyStyle(s) {
+                document.body.setAttribute('data-style', s);
+                localStorage.setItem('aurora_style_v4', s);
+            },
+            toggleSec(visible) {
+                Elements.sBox.classList.toggle('hidden', !visible);
+                document.getElementById('sep-2').classList.toggle('hidden', !visible);
+                localStorage.setItem('aurora_sec_v4', visible);
+                this.updateAlarmDisplay(); // Cập nhật định dạng giờ báo thức nếu đang hiển thị
+            },
+            toggleFullscreen() {
+                if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                else document.exitFullscreen();
+            },
+            clearCache() {
+                if (confirm("Xóa toàn bộ dữ liệu tùy chỉnh?")) {
+                    localStorage.clear();
+                    location.reload();
                 }
-                const tS = Math.floor(diff / 1000);
-                if (type === 'tet') {
-                    dH = Math.floor(tS / 86400).toString().padStart(2, '0');
-                    dM = Math.floor((tS % 86400) / 3600).toString().padStart(2, '0');
-                    dS = Math.floor((tS % 3600) / 60).toString().padStart(2, '0') + ":" + (tS % 60).toString().padStart(2, '0');
+            },
+            updateUI() {
+                const labels = { clock: 'Hệ thống', tet: 'Chờ Tết 2026', countdown: 'Đếm ngược', alarm: 'Báo thức', stopwatch: 'Bấm giờ' };
+                Elements.modeLab.innerText = labels[State.mode];
+                const isTet = State.mode === 'tet';
+                
+                Elements.dBox.classList.toggle('hidden', !isTet);
+                Elements.sep0.classList.toggle('hidden', !isTet);
+                document.getElementById('main-display').classList.toggle('tet-layout', isTet);
+
+                Elements.startBtn.classList.toggle('hidden', (State.isActive && !State.isManual) || State.mode === 'clock' || State.mode === 'tet');
+                Elements.startBtn.innerText = State.isManual ? "Xác nhận" : "Bắt đầu";
+                Elements.pauseBtn.classList.toggle('hidden', !State.isActive || State.mode === 'clock' || State.mode === 'alarm' || State.mode === 'tet');
+                Elements.pauseBtn.innerText = State.isPaused ? "Tiếp tục" : "Tạm dừng";
+
+                this.updateAlarmDisplay();
+            },
+            updateAlarmDisplay() {
+                if (State.mode === 'alarm' && State.isActive && State.endTime > 0) {
+                    const alarmDate = new Date(State.endTime);
+                    const hh = String(alarmDate.getHours()).padStart(2, '0');
+                    const mm = String(alarmDate.getMinutes()).padStart(2, '0');
+                    const ss = String(alarmDate.getSeconds()).padStart(2, '0');
+                    const showSec = localStorage.getItem('aurora_sec_v4') !== 'false';
+                    
+                    Elements.alarmInfo.innerText = `Báo thức đã đặt lúc: ${hh}:${mm}${showSec ? ':' + ss : ''}`;
+                    Elements.alarmInfo.style.opacity = "0.8";
                 } else {
-                    dH = Math.floor(tS / 3600).toString().padStart(2, '0');
-                    dM = Math.floor((tS % 3600) / 60).toString().padStart(2, '0');
-                    dS = (tS % 60).toString().padStart(2, '0');
+                    Elements.alarmInfo.innerText = "";
+                    Elements.alarmInfo.style.opacity = "0";
                 }
-            } else {
-                const start = parseInt(localStorage.getItem('startTime')) || 0;
-                const tS = Math.floor((now.getTime() - start) / 1000);
-                dH = Math.floor(tS / 3600).toString().padStart(2, '0');
-                dM = Math.floor((tS % 3600) / 60).toString().padStart(2, '0');
-                dS = (tS % 60).toString().padStart(2, '0');
             }
+        };
 
-            const applyContent = (el, val) => {
-                if (el.innerText !== val) {
-                    el.innerText = val;
-                    el.classList.remove('digit-changed');
-                    void el.offsetWidth;
-                    el.classList.add('digit-changed');
+        const Assets = {
+            load() {
+                const theme = localStorage.getItem('aurora_theme_v4') || 'midnight';
+                const style = localStorage.getItem('aurora_style_v4') || 'glass';
+                const bg = localStorage.getItem('aurora_bg_v4');
+                const sound = localStorage.getItem('aurora_sound_v4');
+                const vol = localStorage.getItem('aurora_vol_v4') || 100;
+                const sec = localStorage.getItem('aurora_sec_v4') !== 'false';
+                UI.applyTheme(theme);
+                UI.applyStyle(style);
+                if (bg) {
+                    document.getElementById('bg-layer').style.backgroundImage = `url(${bg})`;
+                    document.body.classList.add('has-bg');
                 }
-            };
-            applyContent(elH, dH); applyContent(elM, dM);
-            if(type !== 'alarm') applyContent(elS, dS);
-            document.title = `${dH}:${dM}${type!=='alarm'?':'+dS:''} - Aurora`;
-        }
-
-        function togglePause() {
-            const type = localStorage.getItem('timerType');
-            if (!type || type === 'alarm' || type === 'clock') return;
-            isPaused = !isPaused; localStorage.setItem('isPaused', isPaused);
-            if (isPaused) { localStorage.setItem('pausedAt', Date.now()); pauseBtn.innerText = "Tiếp tục"; }
-            else {
-                const gap = Date.now() - parseInt(localStorage.getItem('pausedAt'));
-                if (type === 'stopwatch') localStorage.setItem('startTime', (parseInt(localStorage.getItem('startTime')) + gap));
-                else localStorage.setItem('endTime', (parseInt(localStorage.getItem('endTime')) + gap));
-                pauseBtn.innerText = "Tạm dừng";
+                if (sound) Elements.audio.src = sound;
+                this.updateVol(vol);
+                document.getElementById('vol-slider').value = vol;
+                document.getElementById('show-sec').checked = sec;
+                UI.toggleSec(sec);
+            },
+            handleBg(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const b64 = e.target.result;
+                        document.getElementById('bg-layer').style.backgroundImage = `url(${b64})`;
+                        document.body.classList.add('has-bg');
+                        localStorage.setItem('aurora_bg_v4', b64);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            },
+            handleSound(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        Elements.audio.src = e.target.result;
+                        localStorage.setItem('aurora_sound_v4', e.target.result);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            },
+            updateVol(v) {
+                Elements.audio.volume = v / 100;
+                document.getElementById('vol-txt').innerText = v + '%';
+                localStorage.setItem('aurora_vol_v4', v);
+            },
+            beep() {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const g = ctx.createGain();
+                osc.connect(g); g.connect(ctx.destination);
+                osc.frequency.value = 440; g.gain.value = 0.5;
+                osc.start(); osc.stop(ctx.currentTime + 1);
+            },
+            launchConfetti() {
+                const end = Date.now() + 15 * 1000;
+                const frame = () => {
+                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 } });
+                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 } });
+                    if (Date.now() < end) requestAnimationFrame(frame);
+                };
+                frame();
             }
-        }
+        };
 
-        function resetAll() {
-            clearInterval(timerId); clearInterval(alarmInterval); clearInterval(fireworkInterval);
-            customAudioEl.pause(); customAudioEl.currentTime = 0;
-            const keysToRemove = ['timerType', 'startTime', 'endTime', 'alarmTime', 'pausedAt', 'isPaused'];
-            keysToRemove.forEach(k => localStorage.removeItem(k));
-            document.body.removeAttribute('data-mode');
-            disableManualEdit(); secBox.style.display = 'block'; sep2.style.display = 'block';
-            elH.innerText = elM.innerText = elS.innerText = "00";
-            lblH.innerText = "HOUR"; lblM.innerText = "MIN"; lblS.innerText = "SEC";
-            modeText.innerText = "SẴN SÀNG"; pauseBtn.innerText = "Tạm dừng";
-            document.getElementById('modal').style.display = 'none'; isPaused = false;
-        }
-
-        function triggerFirework() {
-            const duration = 15 * 1000; const end = Date.now() + duration;
-            fireworkInterval = setInterval(function() {
-                if (Date.now() > end) return clearInterval(fireworkInterval);
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            }, 250);
-        }
-
-        function startTetCountdown() {
-            resetAll(); 
-            const tetDate = new Date('February 17, 2026 00:00:00').getTime();
-            localStorage.setItem('timerType', 'tet'); localStorage.setItem('endTime', tetDate);
-            updateModeUI('tet'); startLoop();
-        }
-
-        // --- HÀM PHÁT CHUÔNG (ƯU TIÊN NHẠC CÁ NHÂN) ---
-        function startAlarm(txt) {
-            document.getElementById('alarm-title').innerText = txt;
-            document.getElementById('modal').style.display = 'flex';
-            
-            if (customAudioEl.src && customAudioEl.src.includes('base64')) {
-                customAudioEl.play().catch(e => console.log("Cần tương tác để phát nhạc"));
-            } else {
-                // Nếu không có nhạc cá nhân thì dùng âm thanh tít tít cũ
-                alarmInterval = setInterval(() => {
-                    let o = audioCtx.createOscillator(), g = audioCtx.createGain();
-                    o.type = 'square'; o.connect(g); g.connect(audioCtx.destination);
-                    o.start(); o.stop(audioCtx.currentTime + 0.1);
-                }, 500);
-            }
-        }
-
-        function stopAlarm() { 
-            clearInterval(alarmInterval); 
-            clearInterval(fireworkInterval); 
-            customAudioEl.pause(); 
-            customAudioEl.currentTime = 0;
-            resetAll(); 
-        }
+        Core.init();
+        window.onclick = (e) => { if (!e.target.closest('.main-controls')) UI.closeAllMenus(); };
     </script>
 </body>
 </html>
